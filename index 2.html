@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="阳光计划">
+<meta name="theme-color" content="#FFB74D">
+<meta name="mobile-web-app-capable" content="yes">
+<!-- PWA 配置 -->
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="favicon-32.png">
+<title>阳光计划 ☀️</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ===== 顶部 ===== -->
+<header class="header">
+  <div class="header-top">
+    <div class="header-title">
+      <span class="sun-icon"></span>
+      阳光计划
+    </div>
+    <div class="sunshine-badge">☀️ <span id="sunCount">0</span></div>
+  </div>
+  <div class="header-date" id="headerDate"></div>
+</header>
+
+<!-- ===== 标签栏 ===== -->
+<nav class="tabs" id="tabs">
+  <div class="tab active" data-panel="study">📚 学习</div>
+  <div class="tab" data-panel="errors">❌ 错题</div>
+  <div class="tab" data-panel="battle">🧟 基地保卫</div>
+  <div class="tab" data-panel="rewards">🎁 奖励</div>
+  <div class="tab" data-panel="calendar">📅 打卡</div>
+  <div class="tab" data-panel="health">🏃 健康饮食</div>
+  <div class="tab" data-panel="brain">🧠 每日思维</div>
+  <div class="tab" data-panel="memo">📝 备忘录</div>
+</nav>
+
+<!-- ===== 内容区 ===== -->
+<main class="content">
+
+<!-- ============ 第一栏：学习内容 ============ -->
+<section class="panel active" id="panel-study">
+  <div class="card">
+    <div class="card-title"><span class="emoji">📖</span> 今日学习任务</div>
+    <div id="taskList"></div>
+  </div>
+
+  <!-- 背书进度 -->
+  <div class="card">
+    <div class="card-title">
+      <span class="emoji">📜</span> 背书计划
+      <span style="margin-left:auto;font-size:13px;color:var(--text-light)" id="recProgress">0/40</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="recProgressBar" style="width:0%"></div></div>
+    <div style="font-size:12px;color:var(--text-light);margin-top:8px">
+      按照江苏无锡四年级语文（部编版）安排，每1-2天背完一篇，共40篇
+    </div>
+    <div class="section-label">📚 当前篇目</div>
+    <div id="currentRec"></div>
+    <button class="btn btn-leaf btn-full" style="margin-top:12px" onclick="App.nextRecitation()">下一篇 ➡️</button>
+    <div class="section-label">📋 全部篇目</div>
+    <div id="allRec"></div>
+  </div>
+
+  <!-- 数学 -->
+  <div class="card">
+    <div class="card-title"><span class="emoji">🔢</span> 数学每日口算</div>
+    <div style="font-size:13px;color:var(--text-light);margin-bottom:8px">
+      苏教版四年级：三位数除以两位数、两位数乘两位数、混合运算等，每日30题
+    </div>
+    <button class="btn btn-primary btn-full" onclick="App.genMath()">🎲 生成今日口算题</button>
+    <div class="math-grid" id="mathGrid"></div>
+    <button class="btn btn-leaf btn-full" style="margin-top:12px;display:none" id="mathCheckBtn" onclick="App.checkMath()">✅ 批改</button>
+
+    <div class="section-label">🧩 思维拓展题</div>
+    <div style="font-size:13px;color:var(--text-light);margin-bottom:8px">
+      在课内基础上提升难度，锻炼数学思维
+    </div>
+    <div id="thinkingList"></div>
+  </div>
+
+  <!-- 英语 -->
+  <div class="card">
+    <div class="card-title"><span class="emoji">🔤</span> 英语每日学习</div>
+    <div style="font-size:13px;color:var(--text-light);margin-bottom:8px">
+      译林版（苏教版）四年级，每日背3-5个单词+3句句型，难度适当提升
+    </div>
+    <div class="section-label">📖 今日单词</div>
+    <div id="wordList"></div>
+    <div class="section-label">💬 今日句型</div>
+    <div id="sentenceList"></div>
+  </div>
+
+  <!-- 古筝 -->
+  <div class="card">
+    <div class="card-title"><span class="emoji">🎵</span> 古筝练习</div>
+    <div class="task-item" id="guzhengTask">
+      <div class="task-check" onclick="App.toggleTask('guzheng', 10)"></div>
+      <div class="task-body">
+        <div class="task-name">古筝练习满30分钟</div>
+        <div class="task-detail">每日坚持练习，培养音乐素养</div>
+      </div>
+      <div class="task-reward">+10 ☀️</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 第二栏：错题本 ============ -->
+<section class="panel" id="panel-errors">
+  <div class="card">
+    <div class="card-title"><span class="emoji">❌</span> 错题本</div>
+    <div style="font-size:13px;color:var(--text-light);margin-bottom:12px">
+      记录学习中遇到的错题，方便后期复习练习
+    </div>
+    <button class="btn btn-primary btn-full" onclick="App.openErrorModal()">➕ 添加错题</button>
+  </div>
+  <div id="errorList"></div>
+</section>
+
+<!-- ============ 第三栏：基地保卫战 ============ -->
+<section class="panel" id="panel-battle">
+  <div class="card" style="padding:0;overflow:hidden">
+    <div class="card-title" style="padding:16px 16px 0"><span class="emoji">🧟</span> 植物大战僵尸·基地保卫</div>
+    <div class="battlefield">
+      <div class="house">🏠</div>
+      <div class="zombie-row" id="zombieRow"></div>
+      <div class="lawn-grid" id="lawnGrid"></div>
+    </div>
+    <div style="padding:0 16px 16px">
+      <div class="battle-info" id="battleInfo"></div>
+      <div class="battle-bar"><div class="battle-bar-fill" id="battleBar" style="width:0%"></div></div>
+      <div style="font-size:13px;color:var(--text-light);margin-top:10px;line-height:1.6">
+        🌻 完成每日学习任务 = 种植防御植物<br>
+        🧟 每少完成1项任务 = 僵尸前进一格<br>
+        🏠 僵尸到达房屋 = 基地被攻破！<br>
+        ⭐ 全部完成 = 基地安全，获得额外阳光奖励
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 第四栏：奖励中心 ============ -->
+<section class="panel" id="panel-rewards">
+  <div class="card">
+    <div class="card-title">
+      <span class="emoji">🎁</span> 奖励中心
+      <span style="margin-left:auto;font-size:13px;color:var(--sun-3)" id="rewardSun">☀️ 0</span>
+    </div>
+    <div style="font-size:13px;color:var(--text-light);margin-bottom:12px">
+      用植物大战僵尸获得的阳光兑换奖励礼品
+    </div>
+    <div class="reward-grid" id="rewardGrid"></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="emoji">📜</span> 兑换记录</div>
+    <div id="rewardHistory"></div>
+  </div>
+</section>
+
+<!-- ============ 第五栏：打卡日历 ============ -->
+<section class="panel" id="panel-calendar">
+  <div class="card">
+    <div class="card-title"><span class="emoji">📅</span> 打卡日历</div>
+    <div class="calendar-header">
+      <button class="cal-nav-btn" onclick="App.prevMonth()">‹</button>
+      <span class="cal-month" id="calMonth"></span>
+      <button class="cal-nav-btn" onclick="App.nextMonth()">›</button>
+    </div>
+    <div class="calendar-grid" id="calGrid"></div>
+    <div class="cal-stats" id="calStats"></div>
+    <div style="font-size:12px;color:var(--text-light);margin-top:12px;line-height:1.8">
+      🟩 绿色：全勤打卡 &nbsp; 🟡 黄色：部分完成<br>
+      🔴 红色：漏打卡 &nbsp; ⬜ 灰色：未到日期
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="emoji">📊</span> 打卡总结</div>
+    <div id="calSummary"></div>
+  </div>
+</section>
+
+<!-- ============ 第六栏：健康饮食 ============ -->
+<section class="panel" id="panel-health">
+  <div class="card">
+    <div class="card-title"><span class="emoji">🏃</span> 每日运动目标</div>
+    <div class="target-box">
+      <h4>🎯 四年级男孩每日运动量</h4>
+      <div class="target-item">🏃 <span id="t-steps">8000-10000步</span></div>
+      <div class="target-item">⏱️ <span id="t-exercise">60分钟中高强度运动</span></div>
+      <div class="target-item">😴 <span id="t-sleep">9-10小时（晚9点前入睡）</span></div>
+      <div class="target-item">🌳 <span id="t-outdoor">至少1小时户外活动</span></div>
+    </div>
+    <div class="section-label">💪 推荐运动项目</div>
+    <div id="exerciseList"></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="emoji">🥗</span> 长高营养食谱</div>
+    <div style="font-size:13px;color:var(--text-light);margin-bottom:12px">
+      四年级正是长高黄金期，这些食物帮助长高更有营养
+    </div>
+    <div id="nutritionList"></div>
+  </div>
+</section>
+
+<!-- ============ 第七栏：每日思维 ============ -->
+<section class="panel" id="panel-brain">
+  <div class="card">
+    <div class="card-title"><span class="emoji">🗣️</span> 英语日常对话</div>
+    <div style="font-size:13px;color:var(--text-light);margin-bottom:12px">
+      每日简单英语情景对话，不伤眼也能练习口语
+    </div>
+    <div id="dialogList"></div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="emoji">🧠</span> 思维智力题</div>
+    <div style="font-size:13px;color:var(--text-light);margin-bottom:12px">
+      有趣的智力题，提升思维能力（点击查看答案）
+    </div>
+    <div id="teaserList"></div>
+    <button class="btn btn-outline btn-full" style="margin-top:12px" onclick="App.shuffleTeasers()">🔄 换一批</button>
+  </div>
+</section>
+
+<!-- ============ 第八栏：备忘录 ============ -->
+<section class="panel" id="panel-memo">
+  <div class="card">
+    <div class="card-title"><span class="emoji">📝</span> 近期计划备忘录</div>
+    <div style="font-size:13px;color:var(--text-light);margin-bottom:12px">
+      四年级学习规划、生活心理常识、历史地理知识，系统学习整套
+    </div>
+    <button class="btn btn-primary btn-full" onclick="App.openMemoModal()">➕ 添加备忘</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="emoji">📌</span> 推荐学习计划</div>
+    <div id="suggestedMemos"></div>
+  </div>
+
+  <div class="card">
+    <div class="section-label">📋 我的备忘录</div>
+    <div id="memoList"></div>
+  </div>
+</section>
+
+</main>
+
+<!-- ===== 浮动添加按钮 ===== -->
+<button class="fab" onclick="App.openQuickAdd()">+</button>
+
+<!-- ===== 错题弹窗 ===== -->
+<div class="modal-overlay" id="errorModal">
+  <div class="modal">
+    <div class="modal-title">添加错题</div>
+    <div class="form-group">
+      <label class="form-label">科目</label>
+      <select class="form-select" id="errSubject">
+        <option value="语文">语文</option>
+        <option value="数学">数学</option>
+        <option value="英语">英语</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">题目</label>
+      <textarea class="form-textarea" id="errQuestion" placeholder="输入题目内容..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">正确答案</label>
+      <textarea class="form-textarea" id="errAnswer" placeholder="输入正确答案..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">错误原因（可选）</label>
+      <input class="form-input" id="errNote" placeholder="如：粗心、概念不清...">
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button class="btn btn-outline" style="flex:1" onclick="App.closeModal('errorModal')">取消</button>
+      <button class="btn btn-primary" style="flex:1" onclick="App.saveError()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 备忘录弹窗 ===== -->
+<div class="modal-overlay" id="memoModal">
+  <div class="modal">
+    <div class="modal-title">添加备忘录</div>
+    <div class="form-group">
+      <label class="form-label">分类</label>
+      <select class="form-select" id="memoCat">
+        <option value="学习">学习</option>
+        <option value="生活">生活</option>
+        <option value="心理">心理</option>
+        <option value="历史">历史</option>
+        <option value="地理">地理</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">标题</label>
+      <input class="form-input" id="memoTitle" placeholder="备忘标题...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">内容</label>
+      <textarea class="form-textarea" id="memoContent" placeholder="详细内容..."></textarea>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:16px">
+      <button class="btn btn-outline" style="flex:1" onclick="App.closeModal('memoModal')">取消</button>
+      <button class="btn btn-primary" style="flex:1" onclick="App.saveMemo()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 快速添加弹窗 ===== -->
+<div class="modal-overlay" id="quickModal">
+  <div class="modal">
+    <div class="modal-title">快速添加</div>
+    <button class="btn btn-primary btn-full" style="margin-bottom:10px" onclick="App.closeModal('quickModal');App.openErrorModal()">❌ 添加错题</button>
+    <button class="btn btn-leaf btn-full" style="margin-bottom:10px" onclick="App.closeModal('quickModal');App.openMemoModal()">📝 添加备忘</button>
+    <button class="btn btn-outline btn-full" onclick="App.closeModal('quickModal')">关闭</button>
+  </div>
+</div>
+
+<!-- ===== Toast ===== -->
+<div class="toast" id="toast"></div>
+
+<script src="data.js?v=3"></script>
+<script src="app.js?v=3"></script>
+</body>
+</html>
